@@ -1,0 +1,60 @@
+  *////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                                                            TRANSFORMAR
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+        *############################# RECODIFICAR EN LA MISMA VARIABLE############################# 
+        
+        
+        DATASET ACTIVATE ConjuntoDatos1.
+        
+        
+        RECODE accid (Lowest thru 57113=1) (57113.1 thru 65835=2) (66804 thru Highest=3).
+        EXECUTE.
+        
+        
+        *##############################RECODIFICAR EN LA MISMA VARIABLE IF ##############################
+        
+        DO IF ( genero = 1).
+        RECODE accid (Lowest thru 57113=1) (57113.1 thru 65835=2) (66804 thru Highest=3).
+        END IF.
+        EXECUTE.
+        *##############################RECODIFICAR EN UNA VARIABLE DIFERENTE##############################
+        
+        RECODE accid (Lowest thru 57113=1) (57113.1 thru 65835=2) (65835.1 thru Highest=3) INTO accid_rec.
+        VARIABLE LABELS  accid_rec 'accidentes_recodificados'.
+        EXECUTE.
+        *##############################RECODIFICAR EN UNA VARIABLE DIFERENTE IF##############################
+        
+        DO IF  (genero = 0).
+        RECODE accid (Lowest thru 57113=1) (57113.1 thru 65835=2) (65835.1 thru Highest=3) INTO accid_rec.
+        END IF.
+        VARIABLE LABELS  accid_rec 'accidentes_recodificados'.
+        EXECUTE.
+        
+        
+        *######################TRANSFORMAR
+        
+        *1. VARIABLE DE DISTRIBUCION NORMAL  
+        
+        COMPUTE ALEATORIO_NORMAL=RV.NORMAL(50,5).
+        EXECUTE.
+        
+        *2. LN de accidentes
+        
+        COMPUTE Ln_accidentes=LN(accid).
+        EXECUTE.
+        
+        *2.1 Ln de accidentes IF (para hombres)
+        
+        IF  (genero = 0) Ln_accidentes_IF=LN(accid).
+        EXECUTE.
+        
+        *3. Una variable sometida a una operacion 
+        
+        COMPUTE Pob_operada=(pob/5)+10.
+        EXECUTE.
+        
+        *4   constantes
+        
+        COMPUTE constante=7.
+        EXECUTE.
