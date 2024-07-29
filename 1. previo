@@ -1,0 +1,744 @@
+* USAMOS LA BASE DE DATOS DE MUESTRA: ACCIDENTES Y LA ENCUESTA HOGARES 2019, DE MANERA INTERCALADA 
+* Encoding: UTF-8.
+
+*############################ NOMBRE DEL DATA SET
+
+DATASET NAME dataset1.
+
+ * ########################## salvar 
+ 
+ SAVE OUTFILE='C:\Users\Adrian\Documents\Manual\accidents.sav'
+  /COMPRESSED.
+
+*SYSFILE INFO ' C:\Users\.... \Documents\... \doc_ejemplo.sav '.
+
+*############################### *resumen de las variables y etiquetas*
+
+DISPLAY     DICTIONARY.  
+
+*///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                                                                                                      DATOS
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+*########## Identificar casos duplicados.##############################
+                    
+                    SORT CASES BY genero(A).
+                    * SECUENCIAS O FRECUENCIAS
+                    
+                    MATCH FILES
+                      /FILE=*
+                      /BY genero
+                      /FIRST=VariablesDuplicadas
+                      /LAST=PrimarioÚltimo.
+                    DO IF (VariablesDuplicadas).
+                    COMPUTE  SecuenciaDuplicadas=1-PrimarioÚltimo.
+                    ELSE.
+                    COMPUTE  SecuenciaDuplicadas=SecuenciaDuplicadas+1.
+                    END IF.
+                    LEAVE  SecuenciaDuplicadas.
+                    FORMATS  SecuenciaDuplicadas (f7).
+                    
+                      *Variables duplicadas
+                     
+                      MATCH FILES
+                      /FILE=*
+                      /DROP=PrimarioÚltimo.   
+                    
+                    VARIABLE LABELS  VariablesDuplicadas 'Indicador de cada primer caso de coincidencia como primario' 
+                        SecuenciaDuplicadas 'Recuento secuencial de casos coincidentes'.
+                    
+                    
+                    VALUE LABELS  VariablesDuplicadas 0 'Caso duplicado' 1 'Caso primario'.
+                    VARIABLE LEVEL  VariablesDuplicadas (ORDINAL) /SecuenciaDuplicadas (SCALE).
+                    *OPCIONAL
+                    
+                    FREQUENCIES VARIABLES=VariablesDuplicadas SecuenciaDuplicadas.
+                    *FIN DEL PROCESO
+                    
+                    EXECUTE.
+
+*############################## Identificar casos atípicos.##############################
+
+DETECTANOMALY
+  /VARIABLES SCALE=ylab ID=s02a_02
+  /PRINT ANOMALYLIST   NORMS REASONSUMMARY ANOMALYSUMMARY CPS
+  /HANDLEMISSING APPLY=NO
+  /CRITERIA PCTANOMALOUSCASES=5 ANOMALYCUTPOINT=2 MINNUMPEERS=1 MAXNUMPEERS=15 NUMREASONS=1.
+
+
+*##############################ORDENAR#########################
+
+SORT CASES BY genero(A).
+
+SORT VARIABLES BY NAME (A).
+
+*##############################SEGMNENTAR CASOS##########################
+
+*1. COMPARAR
+
+    SORT CASES  BY genero.
+    SPLIT FILE LAYERED BY genero.
+
+*2. ORGANIZAR LOS RESULTADOS POR GRUPOS 
+        
+        SORT CASES  BY genero.
+        SPLIT FILE SEPARATE BY genero.
+        
+        SPLIT FILE OFF.
+*################################SELECCIONAR##############################
+
+    USE ALL.
+    COMPUTE filter_$=(genero ~= 1).
+    VARIABLE LABELS filter_$ 'genero ~= 1 (FILTER)'.
+    VALUE LABELS filter_$ 0 'Not Selected' 1 'Selected'.
+    FORMATS filter_$ (f1.0).
+    FILTER BY filter_$.
+    EXECUTE.
+*####################################### QUITAR LA SELECCION##############################
+
+    FILTER OFF.
+    USE ALL.
+    EXECUTE.
+*#################### NO PONDERAR##############################
+    
+    WEIGHT OFF.
+                                                            
+
+*///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                                                                                                    FRECUENCIAS
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+*############################################Frecuencias ############################################################
+
+                        *grafico circular en porcentajes (Piechart percent)
+                        
+                        DATASET ACTIVATE ConjuntoDatos1.
+                        FREQUENCIES VARIABLES=accid genero
+                          /STATISTICS=STDDEV VARIANCE RANGE MINIMUM MAXIMUM SEMEAN MEAN MEDIAN MODE SKEWNESS SESKEW 
+                            KURTOSIS SEKURT
+                          /PIECHART PERCENT
+                          /ORDER=ANALYSIS.
+                        
+                        *grafico circular en porcentajes (Piechart percent)
+                        
+                        FREQUENCIES VARIABLES=accid genero
+                          /STATISTICS=STDDEV VARIANCE RANGE MINIMUM MAXIMUM SEMEAN MEAN MEDIAN MODE SKEWNESS SESKEW 
+                            KURTOSIS SEKURT
+                          /PIECHART FREQ    
+                          /ORDER=ANALYSIS.
+                        
+                        *garfico de barras en porcentajes (BARCHART PERCENT)
+                        
+                        FREQUENCIES VARIABLES=accid genero
+                          /STATISTICS=STDDEV VARIANCE RANGE MINIMUM MAXIMUM SEMEAN MEAN MEDIAN MODE SKEWNESS SESKEW 
+                            KURTOSIS SEKURT
+                          /BARCHART PERCENT
+                          /ORDER=ANALYSIS.
+                        *garfico de barras en frecuencias (BARCHART FREQ)
+                        
+                        FREQUENCIES VARIABLES=accid genero
+                          /STATISTICS=STDDEV VARIANCE RANGE MINIMUM MAXIMUM SEMEAN MEAN MEDIAN MODE SKEWNESS SESKEW 
+                            KURTOSIS SEKURT
+                          /BARCHART FREQ
+                          /ORDER=ANALYSIS.
+                        
+                        *HISTOGRAMA (HISTOGRAM)
+                        
+                        FREQUENCIES VARIABLES=accid genero
+                          /STATISTICS=STDDEV VARIANCE RANGE MINIMUM MAXIMUM SEMEAN MEAN MEDIAN MODE SKEWNESS SESKEW 
+                            KURTOSIS SEKURT
+                          /HISTOGRAM
+                          /ORDER=ANALYSIS.
+                        
+                        *HISTOGRAMA CON CURVA DE NORMALIDAD (HISTOGRAM NORMAL)
+                        
+                        FREQUENCIES VARIABLES=accid genero
+                          /STATISTICS=STDDEV VARIANCE RANGE MINIMUM MAXIMUM SEMEAN MEAN MEDIAN MODE SKEWNESS SESKEW 
+                            KURTOSIS SEKURT
+                          /HISTOGRAM NORMAL
+                          /ORDER=ANALYSIS.
+                        
+                        *SIN GRAFICO, LOS VALORES SON PUNTOS MEDIOS DE GRUPOS
+                        
+                        FREQUENCIES VARIABLES=accid genero
+                          /STATISTICS=STDDEV VARIANCE RANGE MINIMUM MAXIMUM SEMEAN MEAN MEDIAN MODE SKEWNESS SESKEW 
+                            KURTOSIS SEKURT
+                            /GROUPED=accid genero
+                          /ORDER=ANALYSIS.
+        
+        
+        *SIN TABLAS DE FRECUENCIA Y SIN GRAFICOS 
+        
+        FREQUENCIES VARIABLES=accid genero
+          /FORMAT=NOTABLE
+          /STATISTICS=STDDEV VARIANCE RANGE MINIMUM MAXIMUM SEMEAN MEAN MEDIAN MODE SKEWNESS SESKEW 
+            KURTOSIS SEKURT
+          /ORDER=ANALYSIS.
+
+
+
+**                                                                    A PARTIR DE AHORA USAREMOS LA ENCUESTA HOGARES
+
+*ABRIMOS UNA NUEVA BASE DE DATOS
+
+GET
+  FILE='C:\EconomiaSPSS\EH2019\EH2019_Persona.sav'.
+ALTER TYPE ALL(A=AMIN).
+DATASET NAME ConjuntoDatos4 WINDOW=FRONT.
+
+*############ ##############################  FRECUENCIAS ############################################################
+*CON CUARTILES (NTILES   =4)
+*PUNTOS DE CORTE PARA 10 GRUPOS IGUALES (NTILES =10)
+¨*CON PERCENTILES 
+
+DATASET ACTIVATE ConjuntoDatos2.
+FREQUENCIES VARIABLES=depto area tothrs
+  /FORMAT=NOTABLE
+  /NTILES=4
+  /NTILES=10
+  /PERCENTILES=5.0 35.0 50.0 75.0 95.0 
+  /STATISTICS=STDDEV VARIANCE RANGE MINIMUM MAXIMUM SEMEAN MEAN MEDIAN MODE SUM SKEWNESS SESKEW 
+    KURTOSIS SEKURT
+  /ORDER=ANALYSIS.
+
+
+*####################     ##############################     DESCRIPTIVOS ############################################################
+
+*sin guardar una nueva variable estadarizada
+
+DESCRIPTIVES VARIABLES=tothrs 
+  /STATISTICS=MEAN SUM STDDEV VARIANCE RANGE MIN MAX SEMEAN KURTOSIS SKEWNESS
+  /SORT=NAME (A).
+
+*guardando una  nueva variable estandarizada
+
+DESCRIPTIVES VARIABLES=tothrs 
+  /SAVE
+  /STATISTICS=MEAN SUM STDDEV VARIANCE RANGE MIN MAX SEMEAN KURTOSIS SKEWNESS
+  /SORT=NAME (A).
+
+*usando la variable original y la estadarizada
+
+DESCRIPTIVES VARIABLES=tothrs Ztothrs
+  /STATISTICS=MEAN SUM STDDEV VARIANCE RANGE MIN MAX SEMEAN KURTOSIS SKEWNESS
+  /SORT=NAME (A).
+
+*###################################EXPLORAR############################################################
+
+*con estadisticos y sin graficos ( /PLOT NONE)
+#descriptivos al 95%
+ ( /STATISTICS DESCRIPTIVES, /CINTERVAL 95)
+
+                                    EXAMINE VARIABLES=ylab BY tothrs
+                                      /ID=area
+                                      /PLOT NONE
+                                      /STATISTICS DESCRIPTIVES
+                                      /CINTERVAL 95
+                                      /MISSING LISTWISE
+                                      /NOTOTAL.
+                                    
+                                    *#Estimadores M
+                                       (  /MESTIMATORS HUBER(1.339) ANDREW(1.34) HAMPEL(1.7,3.4,8.5) TUKEY(4.685)
+                                      /STATISTICS NONE
+                                      /MISSING LISTWISE)
+                                    
+                                    EXAMINE VARIABLES=ylab BY tothrs
+                                      /ID=area
+                                      /PLOT NONE
+                                      /MESTIMATORS HUBER(1.339) ANDREW(1.34) HAMPEL(1.7,3.4,8.5) TUKEY(4.685)
+                                      /STATISTICS NONE
+                                      /MISSING LISTWISE
+                                      /NOTOTAL.
+                                    
+                                    *#valores atipicos (  /STATISTICS EXTREME)
+                                    
+                                    EXAMINE VARIABLES=ylab BY tothrs
+                                      /ID=area
+                                      /PLOT NONE
+                                      /STATISTICS EXTREME
+                                      /MISSING LISTWISE
+                                      /NOTOTAL.
+                                    
+                                    *#precentiles
+                                     (  /PERCENTILES(5,10,25,50,75,90,95) HAVERAGE
+                                      /STATISTICS NONE)
+                                    
+                                    EXAMINE VARIABLES=ylab BY tothrs
+                                      /ID=area
+                                      /PLOT NONE
+                                      /PERCENTILES(5,10,25,50,75,90,95) HAVERAGE
+                                      /STATISTICS NONE
+                                      /MISSING LISTWISE
+                                      /NOTOTAL.
+                                    
+
+*todos los estadisticos
+
+
+EXAMINE VARIABLES=ylab BY tothrs
+  /ID=area
+  /PLOT NONE
+  /MESTIMATORS HUBER(1.339) ANDREW(1.34) HAMPEL(1.7,3.4,8.5) TUKEY(4.685)
+  /PERCENTILES(5,10,25,50,75,90,95) HAVERAGE
+  /STATISTICS DESCRIPTIVES EXTREME
+  /CINTERVAL 95
+  /MISSING LISTWISE
+  /NOTOTAL.
+
+
+                                    
+                                    *sin estadisticos y con graficos (   /STATISTICS NONE)
+                                    *#diagramas de cajas: "niveles de los factores juntos" 
+                                    ( /PLOT BOXPLOT
+                                      /COMPARE GROUPS)
+                                    
+                                    EXAMINE VARIABLES=ylab BY tothrs
+                                      /ID=area
+                                      /PLOT BOXPLOT
+                                      /COMPARE GROUPS
+                                      /STATISTICS NONE
+                                      /CINTERVAL 95
+                                      /MISSING LISTWISE
+                                      /NOTOTAL.
+                                    
+                                    *#diagramas de cajas: "dependientes juntos"
+                                    ( /PLOT BOXPLOT
+                                      /COMPARE VARIABLES)
+                                    
+                                    EXAMINE VARIABLES=ylab BY tothrs
+                                      /ID=area
+                                      /PLOT BOXPLOT
+                                      /COMPARE VARIABLES
+                                      /STATISTICS NONE
+                                      /CINTERVAL 95
+                                      /MISSING LISTWISE
+                                      /NOTOTAL.
+                                    
+                                    *#diagramas de cajas: ninguno"
+                                    descriptivo: tallo y hoja  (  /PLOT STEMLEAF)
+                                    
+                                    
+                                    EXAMINE VARIABLES=ylab BY tothrs
+                                      /ID=area
+                                      /PLOT STEMLEAF
+                                      /STATISTICS NONE
+                                      /CINTERVAL 95
+                                      /MISSING LISTWISE
+                                      /NOTOTAL.
+                                    
+                                    *#diagramas de cajas: ninguno"
+                                    descriptivo: histograma  (    /PLOT HISTOGRAM)
+                                    
+                                    EXAMINE VARIABLES=ylab BY tothrs
+                                      /ID=area
+                                      /PLOT HISTOGRAM
+                                      /STATISTICS NONE
+                                      /CINTERVAL 95
+                                      /MISSING LISTWISE
+                                      /NOTOTAL.
+                                    
+                                    *#diagramas de cajas: ninguno"
+                                    descriptivo: ninguno
+                                    grafico de normalidad con pruebas (  /PLOT NPPLOT)
+                                    
+                                    EXAMINE VARIABLES=ylab BY tothrs
+                                      /ID=area
+                                      /PLOT NPPLOT
+                                      /STATISTICS NONE
+                                      /CINTERVAL 95
+                                      /MISSING LISTWISE
+                                      /NOTOTAL.
+                                    
+                                    *#diagramas de cajas: ninguno"
+                                    descriptivo: ninguno
+                                    grafico:  dispercion vs nivel con prueba de levene
+                                     (  /PLOT SPREADLEVEL)
+                                    
+                                    
+                                    EXAMINE VARIABLES=ylab BY tothrs
+                                      /ID=area
+                                      /PLOT SPREADLEVEL
+                                      /STATISTICS NONE
+                                      /CINTERVAL 95
+                                      /MISSING LISTWISE
+                                      /NOTOTAL.
+                                    
+                                    *#diagramas de cajas: ninguno"
+                                    descriptivo: ninguno
+                                    grafico:  dispercion vs nivel con prueba de levene 
+                                    TRANSFORMADOS: (  /PLOT SPREADLEVEL(#)  )
+                                                LOG NATURAL (0)
+                                                1/RAIZ CUADRADA  (-0.5)
+                                                RECIPROCO (-1)
+                                                RAIZ CUADRADA (0.5)
+                                                CUADRADO (2)
+                                                CUBO (3)
+                                                NO TRANSFORMADOS (1)
+                                    
+                                    EXAMINE VARIABLES=ylab BY tothrs
+                                      /ID=area
+                                      /PLOT SPREADLEVEL(0)
+                                      /STATISTICS NONE
+                                      /CINTERVAL 95
+                                      /MISSING LISTWISE
+                                      /NOTOTAL.
+
+*#TODOS LOS GRAFICOS (dependientes junto y estimacion en potencias)
+
+EXAMINE VARIABLES=ylab BY tothrs
+  /ID=area
+  /PLOT BOXPLOT STEMLEAF HISTOGRAM SPREADLEVEL
+  /COMPARE VARIABLES
+  /STATISTICS NONE
+  /CINTERVAL 95
+  /MISSING LISTWISE
+  /NOTOTAL.
+
+*#estadisticos y graficos 
+
+EXAMINE VARIABLES=ylab BY tothrs
+  /ID=area
+  /PLOT BOXPLOT STEMLEAF HISTOGRAM SPREADLEVEL
+  /COMPARE VARIABLES
+  /MESTIMATORS HUBER(1.339) ANDREW(1.34) HAMPEL(1.7,3.4,8.5) TUKEY(4.685)
+  /PERCENTILES(5,10,25,50,75,90,95) HAVERAGE
+  /STATISTICS DESCRIPTIVES EXTREME
+  /CINTERVAL 95
+  /MISSING LISTWISE
+  /NOTOTAL.
+
+*############################TABLAS CRUZADAS##########################################################################################
+
+                                            
+       **Exacta:
+                                            1 solo asintotica
+                                            
+                                            CROSSTABS
+                                              /TABLES=aestudio BY depto BY s02a_02
+                                              /FORMAT=AVALUE TABLES
+                                              /CELLS=COUNT
+                                              /COUNT ROUND CELL.
+                                            
+                                            *Exacta:
+                                            2 Monte carlo
+                                            
+                                            CROSSTABS
+                                              /TABLES=aestudio BY depto BY s02a_02
+                                              /FORMAT=AVALUE TABLES
+                                              /CELLS=COUNT
+                                              /COUNT ROUND CELL
+                                              /METHOD=MC CIN(99) SAMPLES(10000).
+                                            
+                                            *Exacta: 
+                                            3exacto, con limite de tiempo para cada prubea
+                                            
+                                            
+                                            CROSSTABS
+                                              /TABLES=aestudio BY depto BY s02a_02
+                                              /FORMAT=AVALUE TABLES
+                                              /CELLS=COUNT
+                                              /COUNT ROUND CELL
+                                              /METHOD=EXACT TIMER(5).
+                                            
+                                            
+                                            *Exacta:
+                                            4 exacto, sin limite de tiempo para cada prubea
+                                            
+                                            CROSSTABS
+                                              /TABLES=aestudio BY depto BY s02a_02
+                                              /FORMAT=AVALUE TABLES
+                                              /CELLS=COUNT
+                                              /COUNT ROUND CELL
+                                              /METHOD=EXACT TIMER(0).
+
+            *Estadisticos:
+                            Chi cuadrado, Correlaciones, Kappa, Riesgo, McNemar,
+                            Nominal: Coeficiente de contingencia, Phi y V de Cramer, Lambda, Coeficiente de incertidumbre
+                            Ordinal:Gamma,D de Sommers, Tau-b de Kendall, Tau-c de Kendall
+                            Nominal por intervalo: Eta
+
+CROSSTABS
+  /TABLES=aestudio BY depto BY s02a_02
+  /FORMAT=AVALUE TABLES
+  /STATISTICS=CHISQ CC PHI LAMBDA UC ETA CORR GAMMA D BTAU CTAU KAPPA RISK MCNEMAR 
+  /CELLS=COUNT
+  /COUNT ROUND CELL.
+
+*Estadisticos:
+            Chi cuadrado, Correlaciones, Kappa, Riesgo, McNemar,
+             Nominal: Coeficiente de contingencia, Phi y V de Cramer, Lambda, Coeficiente de incertidumbre
+            Ordinal:Gamma,D de Sommers, Tau-b de Kendall, Tau-c de Kendall
+            Nominal por intervalo: Eta
+            *##Estadísticos de Cochran y Mantel-Haenszel (Probar que la razón de la ventaja común equivale a  #) [CMH(#)]
+            
+            CROSSTABS
+              /TABLES=aestudio BY depto BY s02a_02
+              /FORMAT=AVALUE TABLES
+              /STATISTICS=CHISQ CC PHI LAMBDA UC ETA CORR GAMMA D BTAU CTAU KAPPA RISK MCNEMAR CMH(#)
+              /CELLS=COUNT
+              /COUNT ROUND CELL.
+            
+            
+            CROSSTABS
+              /TABLES=aestudio BY depto BY s02a_02
+              /FORMAT=AVALUE TABLES
+              /CELLS=COUNT ROW COLUMN TOTAL PROP 
+              /COUNT ROUND CELL.
+            
+            CROSSTABS
+              /TABLES=aestudio BY depto BY s02a_02
+              /FORMAT=AVALUE TABLES
+              /CELLS=COUNT ROW COLUMN TOTAL 
+              /COUNT ROUND CELL.
+            
+            CROSSTABS
+              /TABLES=aestudio BY depto BY s02a_02
+              /FORMAT=AVALUE TABLES
+              /CELLS=COUNT EXPECTED ROW COLUMN TOTAL RESID SRESID ASRESID BPROP 
+              /COUNT ROUND CELL.
+
+*mostar los graficos de barras agrupadas
+
+        CROSSTABS
+          /TABLES=aestudio BY depto BY s02a_02
+          /FORMAT=AVALUE TABLES
+          /CELLS=COUNT RESID SRESID ASRESID PROP 
+          /COUNT ROUND CELL
+          /BARCHART.
+
+*mostrar variables de capa en capa de tablas
+
+            CROSSTABS
+              /TABLES=aestudio BY depto BY s02a_02
+              /SHOWDIM=2
+              /FORMAT=AVALUE TABLES
+              /CELLS=COUNT RESID SRESID ASRESID PROP 
+              /COUNT ROUND CELL.
+
+
+*ambas opciones
+
+        CROSSTABS
+          /TABLES=aestudio BY depto BY s02a_02
+          /SHOWDIM=2
+          /FORMAT=AVALUE TABLES
+          /CELLS=COUNT RESID SRESID ASRESID PROP 
+          /COUNT ROUND CELL
+          /BARCHART.
+        
+
+*suprimir tablas
+
+        CROSSTABS
+          /TABLES=aestudio BY depto BY s02a_02
+          /SHOWDIM=2
+          /FORMAT=NOTABLES
+          /COUNT ROUND CELL
+          /BARCHART.
+        
+
+*###########################################COMPARAR MEDIAS###################################################################
+
+
+
+
+MEANS TABLES=shrs BY phrs
+  /CELLS=MEAN COUNT STDDEV
+  /STATISTICS ANOVA LINEARITY.
+
+T-TEST
+  /TESTVAL=0
+  /MISSING=ANALYSIS
+  /VARIABLES=phrs
+  /CRITERIA=CI(.95).
+
+T-TEST GROUPS=s02a_02(1 2)
+  /MISSING=ANALYSIS
+  /VARIABLES=pext2
+  /CRITERIA=CI(.95).
+
+T-TEST PAIRS=s02a_02 WITH area (PAIRED)
+  /CRITERIA=CI(.9500)
+  /MISSING=ANALYSIS.
+
+ONEWAY tothrs ylab BY s02a_02
+  /MISSING ANALYSIS.
+
+ONEWAY tothrs ylab BY s02a_02
+  /MISSING ANALYSIS
+  /POSTHOC=SNK TUKEY BTUKEY DUNCAN SCHEFFE LSD BONFERRONI SIDAK GABRIEL FREGW QREGW GT2 WALLER(100) 
+    DUNNETT ALPHA(0.95).
+
+ONEWAY tothrs ylab BY s02a_02
+  /MISSING ANALYSIS
+  /POSTHOC=T2 T3 GH C ALPHA(0.95).
+*#############################################CORRELACIONES########################################################################
+
+*CORRALECION
+        
+        *UNA COLA
+        
+                CORRELATIONS
+                  /VARIABLES=tothrs ylab
+                  /PRINT=TWOTAIL NOSIG
+                  /MISSING=PAIRWISE.
+                NONPAR CORR
+                  /VARIABLES=tothrs ylab
+                  /PRINT=BOTH TWOTAIL NOSIG
+                  /MISSING=PAIRWISE.
+         *DOS COLAS
+           
+                CORRELATIONS
+                  /VARIABLES=tothrs ylab
+                  /PRINT=ONETAIL NOSIG
+                  /MISSING=PAIRWISE.
+                NONPAR CORR
+                  /VARIABLES=tothrs ylab
+                  /PRINT=BOTH ONETAIL NOSIG
+                  /MISSING=PAIRWISE.
+ 
+*correlacion parcial 
+
+        *dos colas
+               
+            PARTIAL CORR
+              /VARIABLES=s06b_15da aestudio tothrs ylab BY s02a_02
+              /SIGNIFICANCE=TWOTAIL
+              /MISSING=LISTWISE.
+    
+        *una cola
+        
+            PARTIAL CORR
+              /VARIABLES=s06b_15da aestudio tothrs ylab BY s02a_02
+              /SIGNIFICANCE=ONETAIL
+              /MISSING=LISTWISE.
+
+*#############################################REGRECION########################################################################
+    
+                                                                                *Automatic Linear Modeling. 
+        LINEAR 
+          /FIELDS TARGET=ylab INPUTS=tothrs 
+          /BUILD_OPTIONS OBJECTIVE=STANDARD USE_AUTO_DATA_PREPARATION=TRUE CONFIDENCE_LEVEL=95 
+            MODEL_SELECTION=FORWARDSTEPWISE CRITERIA_FORWARD_STEPWISE=AICC REPLICATE_RESULTS=TRUE SEED=54752075
+          /ENSEMBLES COMBINING_RULE_CONTINUOUS=MEAN COMPONENT_MODELS_N=10.
+                                                                                         
+                                                                                        *lineales
+                   
+            REGRESSION
+              /DESCRIPTIVES MEAN STDDEV CORR SIG N
+              /MISSING LISTWISE
+              /STATISTICS COEFF OUTS CI(95) BCOV R ANOVA COLLIN TOL CHANGE ZPP
+              /CRITERIA=PIN(.05) POUT(.10)
+              /NOORIGIN 
+              /DEPENDENT ylab
+              /METHOD=ENTER tothrs aestudio
+          *residuos:   
+              /RESIDUALS DURBIN
+              /CASEWISE PLOT(ZRESID) OUTLIERS(3).
+            
+            *soolo opciones de coef. de regresion
+            
+            REGRESSION
+              /MISSING LISTWISE
+             * /STATISTICS COEFF OUTS CI(95) BCOV*
+              /CRITERIA=PIN(.05) POUT(.10)
+              /NOORIGIN 
+              /DEPENDENT ylab
+              /METHOD=ENTER tothrs aestudio.
+
+            *solo opciones otras estadisdisticas: r2, descriptivos, colinealiad, correlaciones, ajuste del modelo
+                                
+                    REGRESSION
+                      /DESCRIPTIVES MEAN STDDEV CORR SIG N
+                      /MISSING LISTWISE
+                      /STATISTICS R ANOVA COLLIN TOL CHANGE ZPP
+                      /CRITERIA=PIN(.05) POUT(.10)
+                      /NOORIGIN 
+                      /DEPENDENT ylab
+                      /METHOD=ENTER tothrs aestudio.
+                      
+                  *graficos: histograma, grafic. prob normal, todos los graficos parciales
+                        *graficos( /PARTIALPLOT ALL
+                          /RESIDUALS HISTOGRAM(____) NORMPROB(____).)    
+              
+             *ZRESID: RESIDUOS ESTANDARIZADOS
+              ZPRED: valor predicho estandarizado
+              DRESID: residuo suprimir 
+              ADJPRED: valor pronosticado ajustado
+              SRESID: regrersion residuo estundentizado
+              SDRESID: regresion residuo suprimido estundentizado
+                                    
+                    REGRESSION
+                      /DESCRIPTIVES MEAN STDDEV CORR SIG N
+                      /MISSING LISTWISE
+                      /STATISTICS R ANOVA COLLIN TOL CHANGE ZPP
+                      /CRITERIA=PIN(.05) POUT(.10)
+                      /NOORIGIN 
+                      /DEPENDENT ylab
+                      /METHOD=ENTER tothrs aestudio
+                      /PARTIALPLOT ALL
+                      /RESIDUALS HISTOGRAM(ZRESID) NORMPROB(ZRESID).
+
+                                                                                      * Estimación curvilínea. 
+*limite superior de la regreiosn logistica: ( /UPPERBOUND=10)
+
+                    TSET NEWVAR=NONE.
+                    CURVEFIT
+                      /VARIABLES=ylab WITH aestudio
+                      /CONSTANT
+                      /MODEL=LINEAR LOGARITHMIC INVERSE QUADRATIC CUBIC COMPOUND POWER S GROWTH EXPONENTIAL LGSTIC 
+                      /UPPERBOUND=10
+                      /PRINT ANOVA
+                      /PLOT FIT.
+*regresion logistica binatria
+
+                               
+                                LOGISTIC REGRESSION VARIABLES area
+                                  /METHOD=ENTER aestudio 
+                                  /CRITERIA=PIN(.05) POUT(.10) ITERATE(20) CUT(.5).
+                                
+
+                               *covariables categoricas: aestudio ( /CONTRAST (aestudio)=Indicator) [inidcador, simple diferencia,helmert, repetido, polinomico, desviacion]
+
+                                LOGISTIC REGRESSION VARIABLES area
+                                  /METHOD=ENTER aestudio 
+                                  /CONTRAST (aestudio)=Indicator
+                                  /CRITERIA=PIN(.05) POUT(.10) ITERATE(20) CUT(.5).
+
+*logistica multinomial
+
+
+NOMREG _______ (BASE=LAST ORDER=ASCENDING) BY _______
+  /CRITERIA CIN(95) DELTA(0) MXITER(100) MXSTEP(5) CHKSEP(20) LCONVERGE(0) PCONVERGE(0.000001) 
+    SINGULAR(0.00000001)
+  /MODEL
+  /STEPWISE=PIN(.05) POUT(0.1) MINEFFECT(0) RULE(SINGLE) ENTRYMETHOD(LR) REMOVALMETHOD(LR)
+  /INTERCEPT=INCLUDE
+  /PRINT=ASSOCIATION CELLPROB FIT CORB COVB PARAMETER SUMMARY LRT CPS STEP MFI IC.
+
+
+*ordinal
+
+PLUM _______ BY _____ WITH _______
+  /CRITERIA=CIN(95) DELTA(0) LCONVERGE(0) MXITER(100) MXSTEP(5) PCONVERGE(1.0E-6) SINGULAR(1.0E-8)
+  /LINK=LOGIT
+  /PRINT=FIT PARAMETER SUMMARY.
+
+
+*provit
+
+
+
+PROBIT ____ OF ____ BY ____ (____ ____) WITH ____
+  /LOG NONE
+  /MODEL PROBIT
+  /PRINT FREQ CI RMP
+  /CRITERIA P(0.15) ITERATE(20) STEPLIMIT(.1).
+
+*logit 
+
+PROBIT ____ OF ____ BY aestudio(___  ___) WITH ____
+  /LOG NONE
+  /MODEL LOGIT
+  /PRINT FREQ CI RMP
+  /CRITERIA P(0.15) ITERATE(20) STEPLIMIT(.1).
