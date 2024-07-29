@@ -1,0 +1,130 @@
+
+*#############################################REGRECION########################################################################
+    
+                                                                                *Automatic Linear Modeling. 
+        LINEAR 
+          /FIELDS TARGET=ylab INPUTS=tothrs 
+          /BUILD_OPTIONS OBJECTIVE=STANDARD USE_AUTO_DATA_PREPARATION=TRUE CONFIDENCE_LEVEL=95 
+            MODEL_SELECTION=FORWARDSTEPWISE CRITERIA_FORWARD_STEPWISE=AICC REPLICATE_RESULTS=TRUE SEED=54752075
+          /ENSEMBLES COMBINING_RULE_CONTINUOUS=MEAN COMPONENT_MODELS_N=10.
+                                                                                         
+                                                                                        *lineales
+                   
+            REGRESSION
+              /DESCRIPTIVES MEAN STDDEV CORR SIG N
+              /MISSING LISTWISE
+              /STATISTICS COEFF OUTS CI(95) BCOV R ANOVA COLLIN TOL CHANGE ZPP
+              /CRITERIA=PIN(.05) POUT(.10)
+              /NOORIGIN 
+              /DEPENDENT ylab
+              /METHOD=ENTER tothrs aestudio
+          *residuos:   
+              /RESIDUALS DURBIN
+              /CASEWISE PLOT(ZRESID) OUTLIERS(3).
+            
+            *soolo opciones de coef. de regresion
+            
+            REGRESSION
+              /MISSING LISTWISE
+             * /STATISTICS COEFF OUTS CI(95) BCOV*
+              /CRITERIA=PIN(.05) POUT(.10)
+              /NOORIGIN 
+              /DEPENDENT ylab
+              /METHOD=ENTER tothrs aestudio.
+
+            *solo opciones otras estadisdisticas: r2, descriptivos, colinealiad, correlaciones, ajuste del modelo
+                                
+                    REGRESSION
+                      /DESCRIPTIVES MEAN STDDEV CORR SIG N
+                      /MISSING LISTWISE
+                      /STATISTICS R ANOVA COLLIN TOL CHANGE ZPP
+                      /CRITERIA=PIN(.05) POUT(.10)
+                      /NOORIGIN 
+                      /DEPENDENT ylab
+                      /METHOD=ENTER tothrs aestudio.
+                      
+                  *graficos: histograma, grafic. prob normal, todos los graficos parciales
+                        *graficos( /PARTIALPLOT ALL
+                          /RESIDUALS HISTOGRAM(____) NORMPROB(____).)    
+              
+             *ZRESID: RESIDUOS ESTANDARIZADOS
+              ZPRED: valor predicho estandarizado
+              DRESID: residuo suprimir 
+              ADJPRED: valor pronosticado ajustado
+              SRESID: regrersion residuo estundentizado
+              SDRESID: regresion residuo suprimido estundentizado
+                                    
+                    REGRESSION
+                      /DESCRIPTIVES MEAN STDDEV CORR SIG N
+                      /MISSING LISTWISE
+                      /STATISTICS R ANOVA COLLIN TOL CHANGE ZPP
+                      /CRITERIA=PIN(.05) POUT(.10)
+                      /NOORIGIN 
+                      /DEPENDENT ylab
+                      /METHOD=ENTER tothrs aestudio
+                      /PARTIALPLOT ALL
+                      /RESIDUALS HISTOGRAM(ZRESID) NORMPROB(ZRESID).
+
+                                                                                      * Estimación curvilínea. 
+*limite superior de la regreiosn logistica: ( /UPPERBOUND=10)
+
+                    TSET NEWVAR=NONE.
+                    CURVEFIT
+                      /VARIABLES=ylab WITH aestudio
+                      /CONSTANT
+                      /MODEL=LINEAR LOGARITHMIC INVERSE QUADRATIC CUBIC COMPOUND POWER S GROWTH EXPONENTIAL LGSTIC 
+                      /UPPERBOUND=10
+                      /PRINT ANOVA
+                      /PLOT FIT.
+*regresion logistica binatria
+
+                               
+                                LOGISTIC REGRESSION VARIABLES area
+                                  /METHOD=ENTER aestudio 
+                                  /CRITERIA=PIN(.05) POUT(.10) ITERATE(20) CUT(.5).
+                                
+
+                               *covariables categoricas: aestudio ( /CONTRAST (aestudio)=Indicator) [inidcador, simple diferencia,helmert, repetido, polinomico, desviacion]
+
+                                LOGISTIC REGRESSION VARIABLES area
+                                  /METHOD=ENTER aestudio 
+                                  /CONTRAST (aestudio)=Indicator
+                                  /CRITERIA=PIN(.05) POUT(.10) ITERATE(20) CUT(.5).
+
+*logistica multinomial
+
+
+NOMREG _______ (BASE=LAST ORDER=ASCENDING) BY _______
+  /CRITERIA CIN(95) DELTA(0) MXITER(100) MXSTEP(5) CHKSEP(20) LCONVERGE(0) PCONVERGE(0.000001) 
+    SINGULAR(0.00000001)
+  /MODEL
+  /STEPWISE=PIN(.05) POUT(0.1) MINEFFECT(0) RULE(SINGLE) ENTRYMETHOD(LR) REMOVALMETHOD(LR)
+  /INTERCEPT=INCLUDE
+  /PRINT=ASSOCIATION CELLPROB FIT CORB COVB PARAMETER SUMMARY LRT CPS STEP MFI IC.
+
+
+*ordinal
+
+PLUM _______ BY _____ WITH _______
+  /CRITERIA=CIN(95) DELTA(0) LCONVERGE(0) MXITER(100) MXSTEP(5) PCONVERGE(1.0E-6) SINGULAR(1.0E-8)
+  /LINK=LOGIT
+  /PRINT=FIT PARAMETER SUMMARY.
+
+
+*provit
+
+
+
+PROBIT ____ OF ____ BY ____ (____ ____) WITH ____
+  /LOG NONE
+  /MODEL PROBIT
+  /PRINT FREQ CI RMP
+  /CRITERIA P(0.15) ITERATE(20) STEPLIMIT(.1).
+
+*logit 
+
+PROBIT ____ OF ____ BY aestudio(___  ___) WITH ____
+  /LOG NONE
+  /MODEL LOGIT
+  /PRINT FREQ CI RMP
+  /CRITERIA P(0.15) ITERATE(20) STEPLIMIT(.1).
