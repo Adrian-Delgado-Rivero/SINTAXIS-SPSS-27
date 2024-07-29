@@ -1,0 +1,423 @@
+
+*########################################################################
+                ABRIMOS LA BASE DA DATOS CLUSTER 1
+*#################################################################
+
+GET
+ FILE='C:\Users\Adrian\Documents\UMSS\Seminario de estadistica\sociologos\cluster.sav '. 
+
+*datos relaionados a paises europeos, aspectos sociales 
+
+
+*analisis en busca  de datos extremos
+
+EXAMINE VARIABLES=V2 V3 V4 V5 V6 V7 V8 V9 V10 V11 V12 V13 V14 V15 V16 V17 V18 V19 V20 V21
+  /ID=V1
+  /PLOT BOXPLOT STEMLEAF HISTOGRAM NPPLOT
+  /COMPARE GROUPS
+  /STATISTICS DESCRIPTIVES
+  /CINTERVAL 95
+  /MISSING LISTWISE
+  /NOTOTAL.
+
+*analizar y clasificar conglomerados jerarquicos
+* Graficos>  dendograma //DENDOGRAMA: GRAFICO DE PARTICIONES  (habilitado de ahora en adelante)
+estadisticos > historial de conglomerados   [por defecto, habilitado de aquie en adelante]
+
+CLUSTER   V2 V3 V4 V5 V6 V7 V8 V9 V10 V11 V12 V13 V14 V15 V16 V17 V18 V19 V20 V21
+  /METHOD BAVERAGE
+  /MEASURE=SEUCLID
+  /ID=V1
+  /PRINT SCHEDULE
+  /PLOT DENDROGRAM VICICLE.
+
+
+*mismo metodo (entre variables), pero estandarizamos las araibles con puntuaciones Z
+
+DATASET DECLARE D0.7609455752382293.
+PROXIMITIES   V2 V3 V4 V5 V6 V7 V8 V9 V10 V11 V12 V13 V14 V15 V16 V17 V18 V19 V20 V21
+  /MATRIX OUT(D0.7609455752382293)
+  /VIEW=CASE
+  /MEASURE=SEUCLID
+  /PRINT NONE
+  /ID=V1
+  /STANDARDIZE=VARIABLE Z.
+CLUSTER
+  /MATRIX IN(D0.7609455752382293)
+  /METHOD BAVERAGE
+  /ID=V1
+  /PRINT SCHEDULE
+  /PLOT DENDROGRAM VICICLE.
+Dataset Close D0.7609455752382293.
+
+*metodo enlace dento de lo grupos
+
+DATASET DECLARE D0.3522328528422193.
+PROXIMITIES   V2 V3 V4 V5 V6 V7 V8 V9 V10 V11 V12 V13 V14 V15 V16 V17 V18 V19 V20 V21
+  /MATRIX OUT(D0.3522328528422193)
+  /VIEW=CASE
+  /MEASURE=SEUCLID
+  /PRINT NONE
+  /ID=V1
+  /STANDARDIZE=VARIABLE Z.
+CLUSTER
+  /MATRIX IN(D0.3522328528422193)
+  /METHOD WAVERAGE
+  /ID=V1
+  /PRINT SCHEDULE
+  /PLOT DENDROGRAM VICICLE.
+Dataset Close D0.3522328528422193.
+
+*############################ sin puntuaciones z################################
+CLUSTER   V2 V3 V4 V5 V6 V7 V8 V9 V10 V11 V12 V13 V14 V15 V16 V17 V18 V19 V20 V21
+  /METHOD WAVERAGE
+  /MEASURE=SEUCLID
+  /ID=V1
+  /PRINT SCHEDULE
+  /PLOT DENDROGRAM VICICLE.
+*######################################################
+
+
+*metodoecino más cercano
+
+DATASET DECLARE D0.7137867796581614.
+PROXIMITIES   V2 V3 V4 V5 V6 V7 V8 V9 V10 V11 V12 V13 V14 V15 V16 V17 V18 V19 V20 V21
+  /MATRIX OUT(D0.7137867796581614)
+  /VIEW=CASE
+  /MEASURE=SEUCLID
+  /PRINT NONE
+  /ID=V1
+  /STANDARDIZE=VARIABLE Z.
+CLUSTER
+  /MATRIX IN(D0.7137867796581614)
+  /METHOD SINGLE
+  /ID=V1
+  /PRINT SCHEDULE
+  /PLOT DENDROGRAM VICICLE.
+Dataset Close D0.7137867796581614.
+
+*####################################sin puntuaciones Z################################
+CLUSTER   V2 V3 V4 V5 V6 V7 V8 V9 V10 V11 V12 V13 V14 V15 V16 V17 V18 V19 V20 V21
+  /METHOD SINGLE
+  /MEASURE=SEUCLID
+  /ID=V1
+  /PRINT SCHEDULE
+  /PLOT DENDROGRAM VICICLE.
+*############################################################
+
+
+*metodo vecino más lejano
+
+DATASET DECLARE D0.024580879666594946.
+PROXIMITIES   V2 V3 V4 V5 V6 V7 V8 V9 V10 V11 V12 V13 V14 V15 V16 V17 V18 V19 V20 V21
+  /MATRIX OUT(D0.024580879666594946)
+  /VIEW=CASE
+  /MEASURE=SEUCLID
+  /PRINT NONE
+  /ID=V1
+  /STANDARDIZE=VARIABLE Z.
+CLUSTER
+  /MATRIX IN(D0.024580879666594946)
+  /METHOD COMPLETE
+  /ID=V1
+  /PRINT SCHEDULE
+  /PLOT DENDROGRAM VICICLE.
+Dataset Close D0.024580879666594946.
+
+
+*######################################sin puntuaciones z################
+CLUSTER   V2 V3 V4 V5 V6 V7 V8 V9 V10 V11 V12 V13 V14 V15 V16 V17 V18 V19 V20 V21
+  /METHOD COMPLETE
+  /MEASURE=SEUCLID
+  /ID=V1
+  /PRINT SCHEDULE
+  /PLOT DENDROGRAM VICICLE.
+*##########################################################################
+
+*******apuntes de la clase*****************************************************************
+metoo más usado: distancia euclididana
+diferentes escalas:::::::::: puntuacion z
+historial de colnglomeracion:::::::::: conformacion de grupos en diferentes etapas
+¿cuantos conglomerado queremos tener?
+***********************************************************************************************
+
+
+
+
+*estadisticos >  solucion de pertenencia> solucion unica 3 clusters
+*metodo vecino más cercano 
+*guardar  >  solucion de pertenencia> solucion unica 3 clusters
+
+DATASET DECLARE D0.7875962013114253.
+PROXIMITIES   V2 V3 V4 V5 V6 V7 V8 V9 V10 V11 V12 V13 V14 V15 V16 V17 V18 V19 V20 V21
+  /MATRIX OUT(D0.7875962013114253)
+  /VIEW=CASE
+  /MEASURE=SEUCLID
+  /PRINT NONE
+  /ID=V1
+  /STANDARDIZE=VARIABLE Z.
+CLUSTER
+  /MATRIX IN(D0.7875962013114253)
+  /METHOD SINGLE
+  /ID=V1
+  /PRINT SCHEDULE CLUSTER(3)
+  /PLOT DENDROGRAM VICICLE
+  /SAVE CLUSTER(3).
+Dataset Close D0.7875962013114253.
+
+*####################sin puntuaciones z################################
+CLUSTER   V2 V3 V4 V5 V6 V7 V8 V9 V10 V11 V12 V13 V14 V15 V16 V17 V18 V19 V20 V21
+  /METHOD SINGLE
+  /MEASURE=SEUCLID
+  /ID=V1
+  /PRINT SCHEDULE CLUSTER(3)
+  /PLOT DENDROGRAM VICICLE
+  /SAVE CLUSTER(3).
+*########################################################
+
+**estadisticos >  solucion de pertenencia> solucion unica 4 clusters
+*metodo de ward
+*guardar  >  solucion de pertenencia> solucion unica 4 clusters
+
+DATASET DECLARE D0.3751562991245633.
+PROXIMITIES   V2 V3 V4 V5 V6 V7 V8 V9 V10 V11 V12 V13 V14 V15 V16 V17 V18 V19 V20 V21
+  /MATRIX OUT(D0.3751562991245633)
+  /VIEW=CASE
+  /MEASURE=SEUCLID
+  /PRINT NONE
+  /ID=V1
+  /STANDARDIZE=VARIABLE Z.
+CLUSTER
+  /MATRIX IN(D0.3751562991245633)
+  /METHOD WARD
+  /ID=V1
+  /PRINT SCHEDULE CLUSTER(4)
+  /PLOT DENDROGRAM VICICLE
+  /SAVE CLUSTER(4).
+Dataset Close D0.3751562991245633.
+
+*####################sin puntuaciones z################################
+CLUSTER   V2 V3 V4 V5 V6 V7 V8 V9 V10 V11 V12 V13 V14 V15 V16 V17 V18 V19 V20 V21
+  /METHOD WARD
+  /MEASURE=SEUCLID
+  /ID=V1
+  /PRINT SCHEDULE CLUSTER(4)
+  /PLOT DENDROGRAM VICICLE
+  /SAVE CLUSTER(4).
+*################################################################
+
+
+*APUNTE DE CLASE
+**METODO DE GRUPOS = METODO DE CONGLOMERADOS***********
+
+
+
+
+*########################################################################
+                ABRIMOS LA BASE DA DATOS CLUSTER 2
+*#################################################################
+
+GET
+ FILE='C:\Users\Adrian\Documents\UMSS\Seminario de estadistica\sociologos\cluster2.sav '.
+
+*metodo: entre grupos
+intervalo: distancia euclidea al cuadrado (por defecto)
+Graficos>  dendograma
+estadisticos >  solucion de pertenencia> solucion unica 5 clusters
+guardar  >  solucion de pertenencia> solucion unica 5 clusters
+estandarizados 
+
+DATASET DECLARE D0.024202363949316408.
+PROXIMITIES   PIB_habitante Tasa_crecimiento_PIB Productividad_laboral Productividad_laboral_Hora 
+    Tasa_crecimiento_laboral Tasa_crecimiento_lab_femenino Tasa_crecimeitno_lab_masc Tasa_Inflaccion 
+    coste_cecimeitno_laboral consolidacion_deuda_publica Deficit_publico
+  /MATRIX OUT(D0.024202363949316408)
+  /VIEW=CASE
+  /MEASURE=SEUCLID
+  /PRINT NONE
+  /ID=pais
+  /STANDARDIZE=VARIABLE Z.
+CLUSTER
+  /MATRIX IN(D0.024202363949316408)
+  /METHOD BAVERAGE
+  /ID=pais
+  /PRINT SCHEDULE CLUSTER(5)
+  /PLOT DENDROGRAM VICICLE
+  /SAVE CLUSTER(5).
+Dataset Close D0.024202363949316408.
+
+*metodo: dentro los grupos
+intervalo: distancia euclidea al cuadrado (por defecto)
+Graficos>  dendograma
+estadisticos >  solucion de pertenencia> solucion unica 5 clusters
+guardar  >  solucion de pertenencia> solucion unica 5 clusters
+estandarizados 
+
+
+DATASET DECLARE D0.6518700745031812.
+PROXIMITIES   PIB_habitante Tasa_crecimiento_PIB Productividad_laboral Productividad_laboral_Hora 
+    Tasa_crecimiento_laboral Tasa_crecimiento_lab_femenino Tasa_crecimeitno_lab_masc Tasa_Inflaccion 
+    coste_cecimeitno_laboral consolidacion_deuda_publica Deficit_publico
+  /MATRIX OUT(D0.6518700745031812)
+  /VIEW=CASE
+  /MEASURE=SEUCLID
+  /PRINT NONE
+  /ID=pais
+  /STANDARDIZE=VARIABLE Z.
+CLUSTER
+  /MATRIX IN(D0.6518700745031812)
+  /METHOD WAVERAGE
+  /ID=pais
+  /PRINT SCHEDULE CLUSTER(5)
+  /PLOT DENDROGRAM VICICLE
+  /SAVE CLUSTER(5).
+Dataset Close D0.6518700745031812.
+
+*metodo: vecino más cercano
+intervalo: distancia euclidea al cuadrado (por defecto)
+Graficos>  dendograma
+estadisticos >  solucion de pertenencia> solucion unica 5 clusters
+guardar  >  solucion de pertenencia> solucion unica 5 clusters
+estandarizados 
+
+DATASET DECLARE D0.7881976754599959.
+PROXIMITIES   PIB_habitante Tasa_crecimiento_PIB Productividad_laboral Productividad_laboral_Hora 
+    Tasa_crecimiento_laboral Tasa_crecimiento_lab_femenino Tasa_crecimeitno_lab_masc Tasa_Inflaccion 
+    coste_cecimeitno_laboral consolidacion_deuda_publica Deficit_publico
+  /MATRIX OUT(D0.7881976754599959)
+  /VIEW=CASE
+  /MEASURE=SEUCLID
+  /PRINT NONE
+  /ID=pais
+  /STANDARDIZE=VARIABLE Z.
+CLUSTER
+  /MATRIX IN(D0.7881976754599959)
+  /METHOD SINGLE
+  /ID=pais
+  /PRINT SCHEDULE CLUSTER(5)
+  /PLOT DENDROGRAM VICICLE
+  /SAVE CLUSTER(5).
+Dataset Close D0.7881976754599959.
+
+*metodo: agrupacion cluster centroide
+intervalo: distancia euclidea al cuadrado (por defecto)
+Graficos>  dendograma
+estadisticos >  solucion de pertenencia> solucion unica 5 clusters
+guardar  >  solucion de pertenencia> solucion unica 5 clusters
+estandarizados 
+
+DATASET DECLARE D0.8074356649447346.
+PROXIMITIES   PIB_habitante Tasa_crecimiento_PIB Productividad_laboral Productividad_laboral_Hora 
+    Tasa_crecimiento_laboral Tasa_crecimiento_lab_femenino Tasa_crecimeitno_lab_masc Tasa_Inflaccion 
+    coste_cecimeitno_laboral consolidacion_deuda_publica Deficit_publico
+  /MATRIX OUT(D0.8074356649447346)
+  /VIEW=CASE
+  /MEASURE=SEUCLID
+  /PRINT NONE
+  /ID=pais
+  /STANDARDIZE=VARIABLE Z.
+CLUSTER
+  /MATRIX IN(D0.8074356649447346)
+  /METHOD CENTROID
+  /ID=pais
+  /PRINT SCHEDULE CLUSTER(5)
+  /PLOT DENDROGRAM VICICLE
+  /SAVE CLUSTER(5).
+Dataset Close D0.8074356649447346.
+
+*metodo: WARD //////////permite ver una mayor cantidad de grupos sin disminuir la ritmica
+intervalo: distancia euclidea al cuadrado (por defecto)
+Graficos>  dendograma
+estadisticos >  solucion de pertenencia> solucion unica 5 clusters
+estadisticos > historial de conglomerados   [por defecto] 
+guardar  >  solucion de pertenencia> solucion unica 5 clusters
+estandarizados 
+
+DATASET DECLARE D0.2922418004282341.
+PROXIMITIES   PIB_habitante Tasa_crecimiento_PIB Productividad_laboral Productividad_laboral_Hora 
+    Tasa_crecimiento_laboral Tasa_crecimiento_lab_femenino Tasa_crecimeitno_lab_masc Tasa_Inflaccion 
+    coste_cecimeitno_laboral consolidacion_deuda_publica Deficit_publico
+  /MATRIX OUT(D0.2922418004282341)
+  /VIEW=CASE
+  /MEASURE=SEUCLID
+  /PRINT NONE
+  /ID=pais
+  /STANDARDIZE=VARIABLE Z.
+CLUSTER
+  /MATRIX IN(D0.2922418004282341)
+  /METHOD WARD
+  /ID=pais
+  /PRINT SCHEDULE CLUSTER(5)
+  /PLOT DENDROGRAM VICICLE
+  /SAVE CLUSTER(5).
+Dataset Close D0.2922418004282341.
+
+
+*########################################################################
+                ABRIMOS LA BASE DA DATOS CLUSTER 3
+*##########################################################
+
+GET
+ FILE='C:\Users\Adrian\Documents\UMSS\Seminario de estadistica\sociologos\cluster3.sav '.
+
+
+*metodo vecino más cercano, sin estandarizar
+
+CLUSTER   V1 V2 V3 V4 V5 V6 V7
+  /METHOD SINGLE
+  /MEASURE=SEUCLID
+  /PRINT SCHEDULE
+  /PLOT DENDROGRAM  VICICLE.
+
+*metodo vecino más lejano sin estandarizar, con dendograma 
+
+CLUSTER   V1 V2 V3 V4 V5 V6 V7
+  /METHOD COMPLETE
+  /MEASURE=SEUCLID
+  /PRINT SCHEDULE
+  /PLOT DENDROGRAM VICICLE.
+
+*metodo:vecino más lejano 
+intervalo: distancia euclidea al cuadrado (por defecto)
+Graficos>  dendograma
+estadisticos >  solucion de pertenencia> solucion unica 4 clusters
+estadisticos > historial de conglomerados   [por defecto] y matriz de proximidades 
+ guardar  >  solucion de pertenencia> solucion unica 4clusters
+no estandarizados
+
+
+CLUSTER   V1 V2 V3 V4 V5 V6 V7
+  /METHOD COMPLETE
+  /MEASURE=SEUCLID
+  /PRINT SCHEDULE CLUSTER(4)
+  /PRINT DISTANCE
+  /PLOT DENDROGRAM VICICLE
+  /SAVE CLUSTER(4).
+
+
+*frecuencias de los clusters
+
+
+FREQUENCIES VARIABLES=CLU4_1
+  /NTILES=4
+  /STATISTICS=MEAN MEDIAN MODE
+  /ORDER=ANALYSIS.
+
+*comparacion de medias
+
+MEANS TABLES=V1 V2 V3 V4 V5 V6 V7 BY CLU4_1
+  /CELLS=MEAN COUNT STDDEV.
+
+
+TITLE PRACTICA CLUSTERS ADRIAN DELGADO.
+
+SAVE OUTFILE='C:\Users\Adrian\Documents\UMSS\Seminario de estadistica\tareas\clusters tarea'
+/COMPRESSED.
+
+
+
+
+OUTPUT SAVE NAME=Documento2
+ OUTFILE='C:\Users\Adrian\Documents\UMSS\seminario de estadistica\tareas\Resultados Clusters '+
+    'Adrian Delgado.spv'
+ LOCK=NO.
