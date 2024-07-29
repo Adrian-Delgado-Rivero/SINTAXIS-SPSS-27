@@ -1,0 +1,129 @@
+*############################TABLAS CRUZADAS##########################################################################################
+
+                                            
+       **Exacta:
+                                            1 solo asintotica
+                                            
+                                            CROSSTABS
+                                              /TABLES=aestudio BY depto BY s02a_02
+                                              /FORMAT=AVALUE TABLES
+                                              /CELLS=COUNT
+                                              /COUNT ROUND CELL.
+                                            
+                                            *Exacta:
+                                            2 Monte carlo
+                                            
+                                            CROSSTABS
+                                              /TABLES=aestudio BY depto BY s02a_02
+                                              /FORMAT=AVALUE TABLES
+                                              /CELLS=COUNT
+                                              /COUNT ROUND CELL
+                                              /METHOD=MC CIN(99) SAMPLES(10000).
+                                            
+                                            *Exacta: 
+                                            3exacto, con limite de tiempo para cada prubea
+                                            
+                                            
+                                            CROSSTABS
+                                              /TABLES=aestudio BY depto BY s02a_02
+                                              /FORMAT=AVALUE TABLES
+                                              /CELLS=COUNT
+                                              /COUNT ROUND CELL
+                                              /METHOD=EXACT TIMER(5).
+                                            
+                                            
+                                            *Exacta:
+                                            4 exacto, sin limite de tiempo para cada prubea
+                                            
+                                            CROSSTABS
+                                              /TABLES=aestudio BY depto BY s02a_02
+                                              /FORMAT=AVALUE TABLES
+                                              /CELLS=COUNT
+                                              /COUNT ROUND CELL
+                                              /METHOD=EXACT TIMER(0).
+
+            *Estadisticos:
+                            Chi cuadrado, Correlaciones, Kappa, Riesgo, McNemar,
+                            Nominal: Coeficiente de contingencia, Phi y V de Cramer, Lambda, Coeficiente de incertidumbre
+                            Ordinal:Gamma,D de Sommers, Tau-b de Kendall, Tau-c de Kendall
+                            Nominal por intervalo: Eta
+
+CROSSTABS
+  /TABLES=aestudio BY depto BY s02a_02
+  /FORMAT=AVALUE TABLES
+  /STATISTICS=CHISQ CC PHI LAMBDA UC ETA CORR GAMMA D BTAU CTAU KAPPA RISK MCNEMAR 
+  /CELLS=COUNT
+  /COUNT ROUND CELL.
+
+*Estadisticos:
+            Chi cuadrado, Correlaciones, Kappa, Riesgo, McNemar,
+             Nominal: Coeficiente de contingencia, Phi y V de Cramer, Lambda, Coeficiente de incertidumbre
+            Ordinal:Gamma,D de Sommers, Tau-b de Kendall, Tau-c de Kendall
+            Nominal por intervalo: Eta
+            *##Estadísticos de Cochran y Mantel-Haenszel (Probar que la razón de la ventaja común equivale a  #) [CMH(#)]
+            
+            CROSSTABS
+              /TABLES=aestudio BY depto BY s02a_02
+              /FORMAT=AVALUE TABLES
+              /STATISTICS=CHISQ CC PHI LAMBDA UC ETA CORR GAMMA D BTAU CTAU KAPPA RISK MCNEMAR CMH(#)
+              /CELLS=COUNT
+              /COUNT ROUND CELL.
+            
+            
+            CROSSTABS
+              /TABLES=aestudio BY depto BY s02a_02
+              /FORMAT=AVALUE TABLES
+              /CELLS=COUNT ROW COLUMN TOTAL PROP 
+              /COUNT ROUND CELL.
+            
+            CROSSTABS
+              /TABLES=aestudio BY depto BY s02a_02
+              /FORMAT=AVALUE TABLES
+              /CELLS=COUNT ROW COLUMN TOTAL 
+              /COUNT ROUND CELL.
+            
+            CROSSTABS
+              /TABLES=aestudio BY depto BY s02a_02
+              /FORMAT=AVALUE TABLES
+              /CELLS=COUNT EXPECTED ROW COLUMN TOTAL RESID SRESID ASRESID BPROP 
+              /COUNT ROUND CELL.
+
+*mostar los graficos de barras agrupadas
+
+        CROSSTABS
+          /TABLES=aestudio BY depto BY s02a_02
+          /FORMAT=AVALUE TABLES
+          /CELLS=COUNT RESID SRESID ASRESID PROP 
+          /COUNT ROUND CELL
+          /BARCHART.
+
+*mostrar variables de capa en capa de tablas
+
+            CROSSTABS
+              /TABLES=aestudio BY depto BY s02a_02
+              /SHOWDIM=2
+              /FORMAT=AVALUE TABLES
+              /CELLS=COUNT RESID SRESID ASRESID PROP 
+              /COUNT ROUND CELL.
+
+
+*ambas opciones
+
+        CROSSTABS
+          /TABLES=aestudio BY depto BY s02a_02
+          /SHOWDIM=2
+          /FORMAT=AVALUE TABLES
+          /CELLS=COUNT RESID SRESID ASRESID PROP 
+          /COUNT ROUND CELL
+          /BARCHART.
+        
+
+*suprimir tablas
+
+        CROSSTABS
+          /TABLES=aestudio BY depto BY s02a_02
+          /SHOWDIM=2
+          /FORMAT=NOTABLES
+          /COUNT ROUND CELL
+          /BARCHART.
+        
