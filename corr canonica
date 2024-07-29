@@ -1,0 +1,111 @@
+*CORRELACION CANNONICA
+
+*/////////////////////////////////////////////////////////
+Relacion entre ariables cualitativas
+*///////////////////////////////////////////////////////7
+
+*)()()()()()()()()()()()()()()()()()()()( CANONICA 1 )()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()(
+*############################ 1.Abirmos canonica #.############################ 
+
+GET
+  FILE='C:\Users\Adrian\Documents\UMSS\seminario de estadistica\sociologos\canonica1.sav'.
+
+*DATASET NAME ConjuntoDatos1 WINDOW=FRONT.
+
+*2.############################ correlacion canonica############################ 
+Reduccion de dimenciones>> escalamiento optimo 
+seleccionar: numero de conjuntos de las variables (multiples conjuntos) 
+                   nvl de escalamiento  ()
+
+
+  OVERALS
+  /VARIABLES=preo(4) satis(4) feli(4) orie(3) sexo(2) ecivil(3)
+  /ANALYSIS=preo(SNOM) satis(SNOM) feli(ORDI) orie(SNOM) sexo(SNOM) ecivil(SNOM)
+  /SETS 3 (2, 2, 2)
+  /DIMENSION=2
+  /PRINT FREQ CENTROID FIT QUANT
+  /PLOT OBJECT LOADINGS NDIM(1,MAX)
+  /MAXITER=100
+  /CONVERGENCE=.00001
+  /INITIAL=NUMERIC.
+
+*2.1; todas las opciones menos: guardar puntuaciones de los objetos y utilizar configuracion inicial aleatori
+
+
+OVERALS
+  /VARIABLES=preo(4) satis(4) feli(4) orie(3) sexo(2) ecivil(3)
+  /ANALYSIS=preo(SNOM) satis(SNOM) feli(ORDI) orie(SNOM) sexo(SNOM) ecivil(SNOM)
+  /SETS 3 (2, 2, 2)
+  /DIMENSION=2
+  /PRINT FREQ CENTROID HISTORY WEIGHTS FIT QUANT OBJECT
+  /PLOT QUANT OBJECT LOADINGS CENTROID(preo satis feli orie sexo ecivil) TRANS NDIM(1,MAX)
+  /MAXITER=100
+  /CONVERGENCE=.00001
+  /INITIAL=NUMERIC.
+
+*grafico más importante: coordenadas de categorias
+    determinar los centroides de cada dimencion 
+    
+
+*)()()()()()()()()()()()()()()()()()()()()()()()()()(    CANONICA 2    ()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()(
+
+*1.Abrimos canonica2.
+
+GET
+  FILE='C:\Users\Adrian\Documents\UMSS\seminario de estadistica\sociologos\canonica2.sav'.
+
+*2,identificamos los rangos.
+
+FREQUENCIES VARIABLES=encuesta eanimo gfelici edad ecivil ideologia zonaresidencia
+  /ORDER=ANALYSIS.
+
+*3.reducccion de dimenciones/ escalamiento optimo
+Reduccion de dimenciones>> escalamiento optimo 
+seleccionar: numero de conjuntos de las variables (multiples conjuntos) 
+                   nvl de escalamiento  ()
+
+OVERALS
+  /VARIABLES=gfelici(4) eanimo(7) ideologia(3) zonaresidencia(2) edad(4) ecivil(3)
+  /ANALYSIS=gfelici(ORDI) eanimo(SNOM) ideologia(SNOM) zonaresidencia(SNOM) edad(ORDI) ecivil(SNOM)
+  /SETS 3 (2, 2, 2)
+  /DIMENSION=2
+  /PRINT FREQ CENTROID HISTORY WEIGHTS FIT QUANT OBJECT
+  /PLOT QUANT OBJECT LOADINGS CENTROID(gfelici eanimo ideologia zonaresidencia edad ecivil) TRANS 
+    NDIM(1,MAX)
+  /MAXITER=100
+  /CONVERGENCE=.00001
+  /INITIAL=NUMERIC.
+
+
+*)()()()()()()()()()()()()()()()()()()()()()()()()()(    CANONICA 3   ()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()()(
+
+*1.Abrimos canonica3.
+
+GET
+  FILE='C:\Users\Adrian\Documents\UMSS\seminario de estadistica\sociologos\canonica3.sav'.
+
+
+*2,identificamos los rangos.
+
+FREQUENCIES VARIABLES= pregunta1 pregunta2 pregunta3 pregunta4 pregunta5 pregunta6
+  /ORDER=ANALYSIS.
+
+
+*3.reducccion de dimenciones/ escalamiento optimo
+Reduccion de dimenciones>> escalamiento optimo 
+seleccionar: numero de conjuntos de las variables (multiples conjuntos) 
+                   nvl de escalamiento  ()
+
+
+OVERALS
+  /VARIABLES=pregunta1(5) pregunta2(5) pregunta3(5) pregunta4(5) pregunta5(5) pregunta6(5)
+  /ANALYSIS=pregunta1(SNOM) pregunta2(SNOM) pregunta3(SNOM) pregunta4(SNOM) pregunta5(SNOM) 
+    pregunta6(SNOM)
+  /SETS 2 (3, 3)
+  /DIMENSION=2
+  /PRINT FREQ CENTROID HISTORY WEIGHTS FIT QUANT OBJECT
+  /PLOT OBJECT LOADINGS CENTROID(pregunta1 pregunta2 pregunta3 pregunta4 pregunta5 pregunta6) TRANS 
+    NDIM(1,MAX)
+  /MAXITER=100
+  /CONVERGENCE=.00001
+  /INITIAL=NUMERIC.
