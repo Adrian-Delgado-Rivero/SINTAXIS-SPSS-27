@@ -1,0 +1,321 @@
+*
+
+*Analisis factorial
+    +objetivo: reduccion  de  cantidades cuantiosas de datos () 
+    +buscar factores que subyacen en la relacion entre las variables  y eliminar a los que no
+    +no aplicativo en cualitativas
+*_____________________________________________________________________________
+    
+*1.Abrimos la base de datos HUMEDAL
+
+GET
+ FILE='C:\Users\Adrian\Documents\UMSS\Seminario de estadistica\practicas 1 y 2\bases practica 2\humedal.sav '.
+
+*______________________________DEFINICION________________________________________
+*Análisis factorial es una técnica estadística de reducción de datos usada para explicar 
+las CORRELACIONES entre las VARIABLES OBSERVADAS en términos de un número menor 
+de VARIABLES NO OBSERADAS  llamadas factores.
+*_________________________________________________________________________________
+
+*2. ANALSIS FACTORIAL 
+2.1 EXPLORATORIO              
+
+*///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////    
+VARIABLES:c_electr bicarb cloruros sulfatos calcio magnesio sodio potasio fosfatos
+EXCLUIR: por lista
+ESTADISTICOS: INITIAL (solucion inicial), UNIVARIATE (descriptivos uniariados),
+        MOSTRAR: EXTRACTION (solucion factorial sin rotar)
+ROCAION: NOROTATE (ninguna)
+METODO DE EXTRACCION: PC (Componentes Principales)
+EXTRAER BASADO EN AUTOVALOR: AV mayores a (1)
+# MAX de iteraciones: (25)
+Metodo: correlacion
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+FACTOR
+  /VARIABLES c_electr bicarb cloruros sulfatos calcio magnesio sodio potasio fosfatos
+  /MISSING LISTWISE 
+  /ANALYSIS c_electr bicarb cloruros sulfatos calcio magnesio sodio potasio fosfatos
+  /PRINT UNIVARIATE INITIAL EXTRACTION
+  /CRITERIA MINEIGEN(1) ITERATE(25)
+  /EXTRACTION PC
+  /ROTATION NOROTATE
+  /METHOD=CORRELATION.
+
+*NOTA: 
+comunalidades: EN CUANTO APORTA CADA VARIABLE            
+
+*Varianza total explicada:
+crea componetes (FACTORES) del 1 a k , donde K es el numero de variables 
+
+*Autoalores iniciales  acumulado (cuantos componentes aportan más)
+Matriz de componentes: Varible-componentes // que variable explica más aque componente
+
+* #################################  GLOSARIO#####################################################
+#####################################################################################################
+                    *COMUNALIDADES:    (3 definiciones)
+                       +Proporcion de la VARIANZA EXPLICADA * LOS FACTORES COMUNES EN UNA VARIABLE
+                       +PESOS FACTORIALES AL CUADRADO EN CADA UNA DE LAS FILAS
+                       +La comunalidad es la proporción de variabilidad de cada variable que es explicada por los factores
+                      ##  +coef de correlacion de cada una de las variables con los factores##
+                        
+                         
+                    * AUTOVALORES
+                         % varianza explicada * cada uno de lo factores // VARIABLES COMUNES (factores) 
+                         QUE APORTAN MÁS O EXPLICAN LA VARIANZA TOTAL
+                    
+                    *COMPONENTE:
+                        Factor creado
+                        
+                    *ANALISIS FACTORIAL:
+                        +REDUCCION DE DIMENCIONES 
+                        
+                    *MATRIZ DE LOS COMPONENETES
+                        Que variable aporta más a que componente; para seleccionar que variables partciparan en el modelo   
+*#################################################################################################
+
+*2.1.1) ANALISIS FACTORIAl con matrices de correlaciones
+
+*////////////////////////////////////////////////////////////////////////////////////////////////////
+*        Estadisiticos
+            UNIVARIATE                Descriptvios univariados
+            INITIAL                         Solucion inicial
+             *       Matriz de correlaciones 
+                        CORRELATION            coeficientes
+                        SIG                             nivel de significacion
+                        DET                            determinante
+                        KMO                           KMO y prueba de esfericidad de Bartlet
+                        INV                             inverso
+                        REPR                         reproducida
+                        AIC                               anti imagen
+            
+*        Graficos
+            EIGEN                        sedimentacion
+*////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+
+FACTOR
+  /VARIABLES c_electr bicarb cloruros sulfatos calcio magnesio sodio potasio fosfatos
+  /MISSING LISTWISE 
+  /ANALYSIS c_electr bicarb cloruros sulfatos calcio magnesio sodio potasio fosfatos
+  /PRINT UNIVARIATE INITIAL CORRELATION SIG DET KMO INV REPR AIC EXTRACTION
+  /PLOT EIGEN
+  /CRITERIA MINEIGEN(1) ITERATE(25)
+  /EXTRACTION PC
+  /ROTATION NOROTATE
+  /METHOD=CORRELATION.
+
+
+*/////////////////////////////////////////////////////
+ROTACION                                     VARIMAX
+ESTADISTICOS:
+    SOLUCION ROTADA                        ROTATION
+GRAFICO:         DE CARGAS                    ROTATION
+NUMERO FIJO DE FACTOR            FACTORS (4)
+METODO: coarianza
+*/////////////////////////////////////////////////////////
+
+FACTOR
+  /VARIABLES c_electr bicarb cloruros sulfatos calcio magnesio sodio potasio fosfatos
+  /MISSING LISTWISE 
+  /ANALYSIS c_electr bicarb cloruros sulfatos calcio magnesio sodio potasio fosfatos
+  /PRINT UNIVARIATE INITIAL CORRELATION SIG DET KMO INV REPR AIC EXTRACTION ROTATION
+  /PLOT EIGEN ROTATION
+  /CRITERIA FACTORS(4) ITERATE(25)
+  /EXTRACTION PC
+  /CRITERIA ITERATE(25)
+  /ROTATION VARIMAX
+  /METHOD=COVARIANCE.
+
+
+*OPCIONES: ordenar por tamaños
+
+FACTOR
+  /VARIABLES c_electr bicarb cloruros sulfatos calcio magnesio sodio potasio fosfatos
+  /MISSING LISTWISE 
+  /ANALYSIS c_electr bicarb cloruros sulfatos calcio magnesio sodio potasio fosfatos
+  /PRINT UNIVARIATE INITIAL CORRELATION SIG DET KMO INV REPR AIC EXTRACTION ROTATION
+  /FORMAT SORT
+  /PLOT EIGEN ROTATION
+  /CRITERIA FACTORS(4) ITERATE(25)
+  /EXTRACTION PC
+  /CRITERIA ITERATE(25)
+  /ROTATION VARIMAX
+  /METHOD=CORRELATION.
+
+
+*Mantener:
+DESCRIPTIOS: uniariados,SOLUCION INICIAL, KMO
+OPCIONES: Suprimir pequeños coeficientes menores a 0.10
+
+FACTOR
+  /VARIABLES c_electr bicarb cloruros sulfatos calcio magnesio sodio potasio fosfatos
+  /MISSING LISTWISE 
+  /ANALYSIS c_electr bicarb cloruros sulfatos calcio magnesio sodio potasio fosfatos
+  /PRINT UNIVARIATE INITIAL KMO EXTRACTION ROTATION
+  /FORMAT SORT BLANK(.10)
+  /PLOT EIGEN ROTATION
+  /CRITERIA FACTORS(3) ITERATE(25)
+  /EXTRACTION PC
+  /CRITERIA ITERATE(25)
+  /ROTATION VARIMAX
+  /METHOD=COVARIANCE.
+
+
+*coeficientes
+sin rotar
+
+
+FACTOR
+  /VARIABLES c_electr bicarb cloruros sulfatos calcio magnesio sodio potasio fosfatos
+  /MISSING LISTWISE 
+  /ANALYSIS c_electr bicarb cloruros sulfatos calcio magnesio sodio potasio fosfatos
+  /PRINT UNIVARIATE INITIAL CORRELATION KMO EXTRACTION
+  /FORMAT SORT BLANK(.10)
+  /PLOT EIGEN ROTATION
+  /CRITERIA FACTORS(4) ITERATE(25)
+  /EXTRACTION PC
+  /ROTATION NOROTATE
+  /METHOD=COVARIANCE.
+
+*sin rotacion
+metoo: MLG
+coeficientes
+
+FACTOR
+  /VARIABLES c_electr bicarb cloruros sulfatos calcio magnesio sodio potasio fosfatos
+  /MISSING LISTWISE 
+  /ANALYSIS c_electr bicarb cloruros sulfatos calcio magnesio sodio potasio fosfatos
+  /PRINT UNIVARIATE INITIAL CORRELATION KMO EXTRACTION
+  /FORMAT SORT
+  /PLOT EIGEN ROTATION
+  /CRITERIA FACTORS(4) ITERATE(25)
+  /EXTRACTION GLS
+  /ROTATION NOROTATE.
+*_________________________________________________________________________________
+*                                                      ANALISIS FACTORIAL
+
+**______________________________DEFINICION________________________________________
+*Análisis factorial es una técnica estadística de reducción de datos usada para explicar 
+las CORRELACIONES entre las VARIABLES OBSERVADAS en términos de un número menor 
+de VARIABLES NO OBSERADAS  llamadas factores.
+*_________________________________________________________________________________
+    
+
+*_______________________________RESTRICCIONES Y OBJETIVOS_________________
+    +objetivo: reduccion  de  cantidades cuantiosas de datos () 
+    +buscar factores que subyacen en la relacion entre las variables  y eliminar a los que no
+    +no aplicativo en cualitativas
+*_____________________________________________________________________________
+    
+*1.Abrimos la base de datos mundo
+
+GET
+ FILE='C:\Users\Adrian\Documents\UMSS\Seminario de estadistica\bases de datos\mundo.sav '.
+*___________________________________________________________________________________________
+
+*2.1) ANALISIS EXPLORATORIO
+
+*//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                            INSTRUCCIONES
+            DESCRIPTIVOS:  UNIARIANTE  INITIAL (Sol inicial)
+                EXTRACCION (solicion factorialsin rotar)
+                ROTACION (solucion rotada)
+                MATRIZ DE CORRELACION:  CORRELATION (coef)  AIC (anti imagen)
+            OPCIONES:  SORT (ordenar por tamaños), BLANK(.10) [Suprimir pequeños coeficientes menores a 0.10]
+            GRAFICOS: EIGEN (sedimentacion), ROTATION (cargas)
+            EXTRAER: MINEIGEN(1) [basado en auto valor mayor a 1],  ITERATE(25) [# MAX deiteraciones para convergencia]
+                ANALIZAR:  CORRELATION (matriz de correlacion)
+            METODO DE EXTRACCION:   PC (componentes principales)
+            ROTACION: VARIMAX 
+                            /CRITERIA ITERATE(25)
+*////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+FACTOR
+  /VARIABLES alfabet inc_pob espvidaf espvidam mortinf tasa_nat tasa_mor log_pib
+  /MISSING LISTWISE 
+  /ANALYSIS alfabet inc_pob espvidaf espvidam mortinf tasa_nat tasa_mor log_pib
+  /PRINT UNIVARIATE INITIAL CORRELATION KMO AIC EXTRACTION ROTATION
+  /FORMAT SORT BLANK(.10)
+  /PLOT EIGEN ROTATION
+  /CRITERIA MINEIGEN(1) ITERATE(25)
+  /EXTRACTION PC
+  /CRITERIA ITERATE(25)
+  /ROTATION VARIMAX
+  /METHOD=CORRELATION.
+
+*//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+                        *KMO :::::::lo más proximo a 1
+                  que tan asociadas estan las variables ///////depende de las correlaciones                      
+                                          
+                        *Bartket:::::SIG menor a 0.05
+               grado de posbilidades de error [si es menor, existe un bajo grado de posibiliades de error al momento de aplicar el analisis]
+                        
+                        *anti imagen:::::::::Solo importa la diagonal principal (de lascorrelaciones) 
+                      valores pequeños, es preferible eliminarla
+                     analizar el aporte de las variables al modelo
+                        
+                        *comunalidades
+                    proemdio de correlacion de las variables respecto a su grupo //aporte al conjunto de datos
+                        
+                        *varianza total explicada
+                    # de factores que explican el conjunto de datos
+                                                
+                        *matriz de componentes rotados
+                   Factor xi compone:  que varaibles aportan más a ese componente (factor)
+                        ------en cuantos componente podemos agrupar los datos
+                        
+* #################################  GLOSARIO#####################################################
+                    *COMUNALIDADES:    (3 definiciones)
+                       +Proporcion de la VARIANZA EXPLICADA * LOS FACTORES COMUNES EN UNA VARIABLE
+                       +PESOS FACTORIALES AL CUADRADO EN CADA UNA DE LAS FILAS
+                       +La comunalidad es la proporción de variabilidad de cada variable que es explicada por los factores
+                      ##  +coef de correlacion de cada una de las variables con los factores##
+                        
+                    * AUTOVALORES
+                         % varianza explicada * cada uno de lo factores // VARIABLES COMUNES (factores) 
+                         QUE APORTAN MÁS O EXPLICAN LA VARIANZA TOTAL
+                    
+                    *COMPONENTE:
+                        Factor creado
+*################################################################################################
+
+*////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////                        
+*____________________________________________________________________________________________________________________
+
+*2.2) ANALISISFACTORIAL CONFIRMATORIO
+
+*guardamos como variables UNA VEZ ELIMINADAS VARIABLES DEL ANALISIS QUE NO APORTAN
+
+FACTOR
+  /VARIABLES alfabet inc_pob espvidaf espvidam mortinf tasa_nat tasa_mor log_pib
+  /MISSING LISTWISE 
+  /ANALYSIS alfabet inc_pob espvidaf espvidam mortinf tasa_nat tasa_mor log_pib
+  /PRINT UNIVARIATE INITIAL CORRELATION KMO AIC EXTRACTION ROTATION
+  /FORMAT SORT BLANK(.10)
+  /PLOT EIGEN ROTATION
+  /CRITERIA MINEIGEN(1) ITERATE(25)
+  /EXTRACTION PC
+  /CRITERIA ITERATE(25)
+  /ROTATION VARIMAX
+  /SAVE REG(ALL)
+  /METHOD=CORRELATION.
+ 
+ *añadimos:
+ FSCORE (matriz de los coeficientes de las puntuaciones factoriales)
+
+FACTOR
+  /VARIABLES alfabet inc_pob espvidaf espvidam mortinf tasa_nat tasa_mor log_pib
+  /MISSING LISTWISE 
+  /ANALYSIS alfabet inc_pob espvidaf espvidam mortinf tasa_nat tasa_mor log_pib
+  /PRINT UNIVARIATE INITIAL CORRELATION SIG DET KMO AIC EXTRACTION ROTATION FSCORE
+  /FORMAT SORT BLANK(.10)
+  /PLOT EIGEN ROTATION
+  /CRITERIA MINEIGEN(1) ITERATE(25)
+  /EXTRACTION PC
+  /CRITERIA ITERATE(25)
+  /ROTATION VARIMAX
+  /SAVE REG(ALL)
+  /METHOD=CORRELATION.
+
+*__________________________________________________________________________________
