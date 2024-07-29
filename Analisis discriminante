@@ -1,0 +1,180 @@
+*3 de noviembre de 2021                ANALISIS DISCRIMINATE
+
+*1.-############################  abrimos la base de datos  Mundo-############################ 
+(estasuelto en moodle)
+
+GET
+ FILE='C:\Users\Adrian\Documents\UMSS\Seminario de estadistica\mundo.sav '.
+
+*2##############################Analsis discriminante######################
+*Paso 1: Escogemos:        Posibles variables de clasificacion:
+ 
+ *espvidam         esperanza de vida
+ PIB_Grupo        Paises entre pobre y rico
+
+*  OBSERVAMOS LA DISTRIBUCION DE frecuencias de las variables para escoger la variable 
+   
+        
+FREQUENCIES VARIABLES=pib_CATEG PIB_Grupo
+  /ORDER=ANALYSIS.
+
+*Nota: Escogemos a PIB_Grupo
+
+*Paso 2:                 realizamos el  analisis dicriminante con estas instrucciones:
+    DESCRIPTIVOS    medias, anova,m de box
+    COEFICIENTES    fisher
+    GUARDAR            pertenencia pronosticada
+y las variables:             espvidaf espvidam inc_pob mortinf tasa_nat tasa_mor
+
+DISCRIMINANT
+  /GROUPS=PIB_Grupo(0 1)
+  /VARIABLES=espvidaf espvidam inc_pob mortinf tasa_nat tasa_mor
+  /ANALYSIS ALL
+  /SAVE=CLASS 
+  /PRIORS EQUAL 
+  /STATISTICS=MEAN STDDEV UNIVF BOXM COEFF 
+  /CLASSIFY=NONMISSING POOLED.
+
+*Paso 3:            ir eliminando variables poco relvantes 
+*eliminamos tasa de mortalidad dado u poca relevancia y añadimos las siguinetes isntrucciones
+    Visualizar: Tabla de resumen
+    Graficar: grupos combiandos 
+
+DISCRIMINANT
+  /GROUPS=PIB_Grupo(0 1)
+  /VARIABLES=espvidaf espvidam inc_pob mortinf tasa_nat
+  /ANALYSIS ALL
+  /SAVE=CLASS 
+  /PRIORS EQUAL 
+  /STATISTICS=MEAN STDDEV UNIVF BOXM COEFF TABLE 
+  /PLOT=COMBINED 
+  /CLASSIFY=NONMISSING POOLED.
+
+*añadimos la variable pib per capita             (dado nuestro interes en ver los coeficientes)
+            cambiamos grafico combinados  a graficos separado
+
+DISCRIMINANT
+  /GROUPS=PIB_Grupo(0 1)
+  /VARIABLES=espvidaf espvidam inc_pob mortinf tasa_nat pib_CATEG
+  /ANALYSIS ALL
+  /SAVE=CLASS 
+  /PRIORS EQUAL 
+  /STATISTICS=MEAN STDDEV UNIVF BOXM COEFF TABLE 
+   /PLOT=SEPARATE  
+  /CLASSIFY=NONMISSING POOLED.
+
+* Añadimos las siguinetes instrucciones:
+                probabilidades previas:             calcular egun tamaños de grupos
+ Eliminamos las variables y usamos solo estandarizadas               //dado que estan en la misma escala//    
+ (znac_def zmortinf zfertil zinc_pob ztasa_na zurbana zespvida zalfabet zcaloría zlog_pib zpib_cap zpoblac 
+    zdensida zlog_pob zlogden)
+                
+DISCRIMINANT
+  /GROUPS=PIB_Grupo(0 1)
+  /VARIABLES=znac_def zmortinf zfertil zinc_pob ztasa_na zurbana zespvida zalfabet zcaloría zlog_pib zpib_cap zpoblac 
+    zdensida zlog_pob zlogden
+  /ANALYSIS ALL
+  /SAVE=CLASS 
+  /PRIORS SIZE 
+  /STATISTICS=MEAN STDDEV UNIVF BOXM COEFF 
+  /PLOT=SEPARATE  
+  /CLASSIFY=NONMISSING POOLED.
+
+*eliminamos variables irrelevantes: zpoblac  zdensida zlog_pob zlogden     //   Dado sus coeficientes bajos//
+   
+DISCRIMINANT
+  /GROUPS=PIB_Grupo(0 1)
+  /VARIABLES=znac_def zmortinf zfertil zinc_pob ztasa_na zurbana zespvida zalfabet zcaloría zlog_pib zpib_cap 
+  /ANALYSIS ALL
+  /SAVE=CLASS 
+  /PRIORS SIZE 
+  /STATISTICS=MEAN STDDEV UNIVF BOXM COEFF 
+  /PLOT=SEPARATE  
+  /CLASSIFY=NONMISSING POOLED.
+
+*existen valores perdidos, por lo que remplazamos los valores perdidos con la media 
+
+DISCRIMINANT
+  /GROUPS=PIB_Grupo(0 1)
+  /VARIABLES=znac_def  zmortinf zfertil zinc_pob ztasa_na zurbana zespvida zalfabet zcaloría zlog_pib zpib_cap
+  /ANALYSIS ALL
+  /SAVE=CLASS 
+  /PRIORS SIZE 
+  /STATISTICS=MEAN STDDEV UNIVF BOXM COEFF 
+  /PLOT=SEPARATE  
+  /CLASSIFY=NONMISSING POOLED MEANSUB.
+
+*los coeficientes de Znac_ def, ZUrbana,Zespvida,Zfertil Son bajos,            // lo eliminamos//
+
+DISCRIMINANT
+  /GROUPS=PIB_Grupo(0 1)
+  /VARIABLES= zmortinf zinc_pob ztasa_na   zalfabet zcaloría zlog_pib zpib_cap
+  /ANALYSIS ALL
+  /SAVE=CLASS 
+  /PRIORS SIZE 
+  /STATISTICS=MEAN STDDEV UNIVF BOXM COEFF 
+  /PLOT=SEPARATE  
+  /CLASSIFY=NONMISSING POOLED MEANSUB.
+
+*Paso4)
+NOTA: LA LICENCIADA OBSERVALA NUEVA VARIABLE CREADA EN LA CLASIFICACION, CON LA VARIABLE DE AGRUPACION   
+*Se ve en la hoja de datos,                 ///para comparar la igualdad///
+
+*PASO 5)
+                            analisis exploratorio de datos:
+        Estas variables poblac densidad urbana espvidaf espvidam alfabet inc_pob mortinf pib_cap calorías 
+            sida tasa_nat tasa_mor tasasida (VARIABLES NO ESTANDARIZADAS)
+         Descriptivos, Pruebas de noralidas
+
+*EN CLASE OBSERVAMOS el diagrama de caja de las variables  ¿?
+
+EXAMINE VARIABLES=poblac densidad urbana espvidaf espvidam alfabet inc_pob mortinf pib_cap calorías 
+    sida tasa_nat tasa_mor tasasida
+  /PLOT BOXPLOT STEMLEAF NPPLOT
+  /COMPARE GROUPS
+  /STATISTICS DESCRIPTIVES
+  /CINTERVAL 95
+  /MISSING LISTWISE
+  /NOTOTAL.
+
+
+*////////////////////////////////////////////////////////////ejercicio 2 de clase//////////////////////////////////////////////////////////////////////
+*PASO1)    Observamos la variables PIB  per capita en una taba de frecuencias
+
+FREQUENCIES VARIABLES= pib_cap
+  /NTILES=4
+  /STATISTICS=STDDEV MEAN MEDIAN MODE
+  /ORDER=ANALYSIS.
+
+*recodificamos el PIB en una variable distinta para clasificar los paises, para que sea una variable de clasificacion
+Rangos:
+        1-1000                =1
+        1001-5000          =2
+        5001-10000        =3
+        10001-...            =4
+        
+RECODE pib_cap (Lowest thru 1000=1) (1001 thru 5000=2) (5001 thru 10000=3) (10001 thru Highest=4) 
+    INTO PIB_Clasifiacion.
+VARIABLE LABELS  PIB_Clasifiacion 'clasificacion'.
+EXECUTE.
+
+
+*PASO 2)            hacemos el analisis discriminate con la variable PIB_Clsificacion
+        Grafico:                 Combinados,Separados, mapa territorial
+        visualizacion:         tabla de resumen
+        Estadisticos:         Medias, ANOVAs, M de BOX
+        Coeficientes:           de Fisher
+        Remplazar:             valores peridos con la media
+        GUARDAR            pertenencia pronosticada
+
+  DISCRIMINANT
+  /GROUPS=PIB_Clasifiacion(1 4)
+  /VARIABLES=znac_def
+  /ANALYSIS ALL
+  /SAVE=CLASS 
+  /PRIORS SIZE 
+  /STATISTICS=MEAN STDDEV UNIVF BOXM COEFF TABLE 
+  /PLOT=COMBINED SEPARATE  MAP 
+  /CLASSIFY=NONMISSING POOLED MEANSUB.
+
+*_____________________________ Se debe proceder con el analisis exploratorio??
