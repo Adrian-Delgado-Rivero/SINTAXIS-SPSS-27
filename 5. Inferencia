@@ -1,0 +1,76 @@
+
+*###########################################COMPARAR MEDIAS###################################################################
+
+
+
+
+MEANS TABLES=shrs BY phrs
+  /CELLS=MEAN COUNT STDDEV
+  /STATISTICS ANOVA LINEARITY.
+
+T-TEST
+  /TESTVAL=0
+  /MISSING=ANALYSIS
+  /VARIABLES=phrs
+  /CRITERIA=CI(.95).
+
+T-TEST GROUPS=s02a_02(1 2)
+  /MISSING=ANALYSIS
+  /VARIABLES=pext2
+  /CRITERIA=CI(.95).
+
+T-TEST PAIRS=s02a_02 WITH area (PAIRED)
+  /CRITERIA=CI(.9500)
+  /MISSING=ANALYSIS.
+
+ONEWAY tothrs ylab BY s02a_02
+  /MISSING ANALYSIS.
+
+ONEWAY tothrs ylab BY s02a_02
+  /MISSING ANALYSIS
+  /POSTHOC=SNK TUKEY BTUKEY DUNCAN SCHEFFE LSD BONFERRONI SIDAK GABRIEL FREGW QREGW GT2 WALLER(100) 
+    DUNNETT ALPHA(0.95).
+
+ONEWAY tothrs ylab BY s02a_02
+  /MISSING ANALYSIS
+  /POSTHOC=T2 T3 GH C ALPHA(0.95).
+*#############################################CORRELACIONES########################################################################
+
+*CORRALECION
+        
+        *UNA COLA
+        
+                CORRELATIONS
+                  /VARIABLES=tothrs ylab
+                  /PRINT=TWOTAIL NOSIG
+                  /MISSING=PAIRWISE.
+                NONPAR CORR
+                  /VARIABLES=tothrs ylab
+                  /PRINT=BOTH TWOTAIL NOSIG
+                  /MISSING=PAIRWISE.
+         *DOS COLAS
+           
+                CORRELATIONS
+                  /VARIABLES=tothrs ylab
+                  /PRINT=ONETAIL NOSIG
+                  /MISSING=PAIRWISE.
+                NONPAR CORR
+                  /VARIABLES=tothrs ylab
+                  /PRINT=BOTH ONETAIL NOSIG
+                  /MISSING=PAIRWISE.
+ 
+*correlacion parcial 
+
+        *dos colas
+               
+            PARTIAL CORR
+              /VARIABLES=s06b_15da aestudio tothrs ylab BY s02a_02
+              /SIGNIFICANCE=TWOTAIL
+              /MISSING=LISTWISE.
+    
+        *una cola
+        
+            PARTIAL CORR
+              /VARIABLES=s06b_15da aestudio tothrs ylab BY s02a_02
+              /SIGNIFICANCE=ONETAIL
+              /MISSING=LISTWISE.
